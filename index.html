@@ -51,9 +51,10 @@
       flex-direction: column;
       align-items: center;
       background-color: #FFF;
-      width: 100%;
+      width: 50%;
       padding: 70px 30%;
-
+      margin: 0 20%;
+      border-radius: 25px;
     }
 
     .section-forms label {
@@ -206,7 +207,8 @@
       border-radius: 30px;
       border: 1px solid #0C70F2;
     }
-    .resultado-previsao h1{
+
+    .resultado-previsao h1 {
       text-align: center;
       padding-top: 7px;
     }
@@ -214,40 +216,52 @@
 
   <script>
 
-    
-    async function getAdddresCEP () {
+    document.addEventListener('DOMContentLoaded', function () {
+      var formulario = document.getElementById('meuFormulario');
+
+      formulario.addEventListener('submit', function (event) {
+        event.preventDefault(); // Impede o comportamento padrão de recarregar a página
+        var nome = document.getElementById('nome').value;
+
+        // Aqui você pode adicionar o código para processar os dados do formulário
+        console.log('Nome enviado: ' + nome);
+
+        // Exemplo: exibir uma mensagem de sucesso
+        alert('Formulário enviado com sucesso!');
+      });
+    });
+    async function getAdddresCEP() {
       let cep = document.getElementById('cep').value
-      const response = await fetch(`http://viacep.com.br/ws/${cep}/json/`)
+      let lat = document.getElementById('lat').value
+      let long = document.getElementById('long').value
+
+
+      const response = await fetch(`https://cep.awesomeapi.com.br/json/${cep}`)
       const data = await response.json()
-      
-
-      console.log(data)
 
 
-      let mostrarCep = document.getElementById('mostrar-cep').innerHTML = `<div><h1>${data.cep}</h1></div>`
-
-      
-      let mostrarRua = document.getElementById('mostrar-rua').innerHTML = `<div><h1>${data.localidade}</h1></div>`
-
-      let mostrarBairro = document.getElementById('mostrar-bairro').innerHTML = `<div><h1>${data.bairro}</h1></div>`
-
-      let mostrarUF = document.getElementById('mostrar-uf').innerHTML = `<div><h1>${data.uf}</h1></div>`
+      document.getElementById('lat').value = `${data.lat}`
+      document.getElementById('long').value = `${data.lng}`
 
 
-    }
+      let mostrarRua = document.getElementById('mostrar-rua').innerHTML = `<div><p>${data.address_name}</p></div>`
 
-    async function mostrarTemp () {
+      let mostrarBairro = document.getElementById('mostrar-bairro').innerHTML = `<div><p>${data.district}</p></div>`
 
-      let lat = document.getElementById('lat')
-      let long = document.getElementById('long')
+      let mostrarUF = document.getElementById('mostrar-uf').innerHTML = `<div><p>${data.state}</p></div>`
 
-      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&hourly=temperature_2m,rain`)
-      const data = await response.json()
-      
-      
-      for(let i = 0; i < data.hourlytemperature_2m.length; i++){
-        let mostrarTemp = document.getElementById('mostrar-temp').innerHTML = `${data.hourlytemperature_2m[i]}`
-        
+      let latitude = document.getElementById('lat').value
+      let longitude = document.getElementById('long').value
+
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,rain`)
+      const dta = await res.json()
+
+      console.log(dta)
+
+      for(let i = 0; i < dta.hourly.temperature_2m.length;i++){
+
+        let mostrarTemp = document.getElementById('mostrar-temp').innerHTML = `${dta.hourly.temperature_2m[i]}`
+
       }
 
     }
@@ -292,7 +306,7 @@
   </section>
 
   <section class="section-forms">
-    <form class="forms">
+    <form class="forms" id="meuFormulario">
       <label for="nome">Primeiro Nome:</label>
       <input type="text" placeholder="Insira seu primeiro nome:" id="name">
 
@@ -304,11 +318,11 @@
 
       <label for="inserir-cep">Digite a latitude e longitude para saber a previsão:</label>
       <div class="column-form">
-        <input type="text" placeholder="Latitude" id="lat">
-        <input type="text" placeholder="Longitude" id="long">
+        <input type="text" readonly placeholder="Latitude" id="lat">
+        <input type="text" readonly placeholder="Longitude" id="long">
       </div>
 
-      <button onclick="getAdddresCEP()">Acessar</button>
+      <button type="submit" onclick="getAdddresCEP()">Acessar</button>
 
     </form>
 
@@ -317,7 +331,8 @@
   <section class="resultadoCEP">
     <div class="div-resultado-busca-cep">
       <h1 class="h1-resultado-title">Resultado da busca por CEP:</h1>
-      <p class="resultado" id="mostrar-cep"><img class="img-resultado" src="imagens/icones/icones-resultado.svg" alt="CEP"></p>
+      <p class="resultado" id="mostrar-cep"><img class="img-resultado" src="imagens/icones/icones-resultado.svg"
+          alt="CEP"></p>
     </div>
     <div class="titulos">
       <p>Logradouro/nome</p>
@@ -364,6 +379,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
+    
 </body>
 
 </html>
